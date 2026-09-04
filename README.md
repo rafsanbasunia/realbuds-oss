@@ -11,9 +11,9 @@ Full control over ANC, equaliser, touch gestures and device features — plus
 several things the official app never exposes.
 
 <p align="center">
-  <img src="docs/screenshots/sound.png" alt="Sound tab: ambient sound modes, quick settings, noise cancellation, equaliser and dynamic audio" width="32%">
+  <img src="docs/screenshots/sound.jpg" alt="Sound tab: ambient sound modes, quick settings, noise cancellation, equaliser and dynamic audio" width="32%">
   &nbsp;&nbsp;
-  <img src="docs/screenshots/device.png" alt="Device tab: per-feature toggles reported as supported by the earbuds" width="32%">
+  <img src="docs/screenshots/device.jpg" alt="Device tab: per-feature toggles reported as supported by the earbuds" width="32%">
 </p>
 
 ---
