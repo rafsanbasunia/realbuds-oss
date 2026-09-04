@@ -1,0 +1,10 @@
+* text=auto eol=lf
+
+# Shell scripts must keep LF and stay executable on the CI runner.
+gradlew text eol=lf
+
+# Batch files need CRLF: cmd.exe mishandles LF-only .bat in some cases.
+*.bat text eol=crlf
+
+*.jar binary
+*.png binary

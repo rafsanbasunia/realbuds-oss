@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Launcher ground: near-black with a faint diagonal lift.
+
+  Dark, matching the app itself, rather than the bright gradient this
+  replaced - that read as a different product and fought the cyan mark.
+
+  Not a flat fill though: a very shallow #14161A -> #0A0B0D diagonal gives
+  the tile some form under the glyph so it does not look like a hole punched
+  in the home screen. The range is deliberately tight (two steps of a near
+  black), so it reads as one dark surface, not as a gradient.
+
+  Kept off pure #000000 so the icon keeps a silhouette against a black
+  wallpaper. Adaptive icons cannot follow the system theme, so this one
+  ground has to work on light and dark home screens; dark with a bright mark
+  does, the reverse needs an outline.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr xmlns:aapt="http://schemas.android.com/aapt"
+            name="android:fillColor">
+            <gradient
+                android:startX="10" android:startY="6"
+                android:endX="98" android:endY="102"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF14161A" />
+                <item android:offset="1.0" android:color="#FF0A0B0D" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

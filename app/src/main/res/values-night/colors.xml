@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches NightBase in the Compose theme, so the splash blends into
+         the first frame instead of flashing a different colour. -->
+    <color name="launch_bg">#000000</color>
+</resources>

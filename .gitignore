@@ -1,0 +1,50 @@
+# --- Build output ---
+build/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# --- Gradle ---
+.gradle/
+
+# local.properties holds this machine's SDK path. See local.properties.example.
+local.properties
+
+# gradle.properties IS tracked on purpose: it carries android.useAndroidX and
+# nonTransitiveRClass, without which a fresh clone does not build. Anything
+# machine-specific (org.gradle.java.home, signing paths) belongs in
+# local.properties or ~/.gradle/gradle.properties instead.
+
+# --- Kotlin ---
+.kotlin/
+
+# --- IDE ---
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.externalNativeBuild/
+.cxx/
+
+# --- Signing: never commit keys or passwords ---
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# --- Logs and profiling ---
+*.log
+*.hprof
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Local notes and scratch material ---
+notes/
+scratch/
+*.har

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  RealBuds mark, in white.
+
+  White rather than the app's cyan accent: on a near-black tile it gives
+  the strongest contrast at 48dp, and it stays neutral against whatever
+  wallpaper sits behind the home screen. The in-app logo still follows the
+  theme accent - only the launcher icon is fixed.
+
+  The same construction as RealBudsLogo, so the launcher icon and the in-app
+  header show one mark rather than two lookalikes:
+
+    - two driver circles on a shared axis, each with a punched centre so it
+      reads as an earbud and not a dot
+    - stems sweeping down and inward, the gap between the tips forming the
+      negative-space apex of an M
+    - symmetric about the centre, which keeps it centred under any mask
+
+  The 100-unit Compose grid is scaled by 0.66 and offset by 21, putting the
+  whole mark inside the 72dp safe zone (extents 30.6..77.4 x, 33.2..74.3 y
+  against a limit of 18..90). Nothing is clipped by a circular, squircle or
+  teardrop mask.
+
+  Punched centres are the ground colour rather than transparent: a truly
+  transparent hole shows the *layer below* in an adaptive icon, which is the
+  background vector, so painting the ground colour is both simpler and what
+  actually renders correctly.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- stems: down and inward, round caps -->
+    <path
+        android:pathData="M40.8,43.44 C41.46,60.6 44.76,68.52 49.38,71.16"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="6.34"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M67.2,43.44 C66.54,60.6 63.24,68.52 58.62,71.16"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="6.34"
+        android:strokeLineCap="round" />
+
+    <!-- driver heads -->
+    <path
+        android:pathData="M40.8,43.44 m-10.23,0 a10.23,10.23 0 1,0 20.46,0 a10.23,10.23 0 1,0 -20.46,0"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M67.2,43.44 m-10.23,0 a10.23,10.23 0 1,0 20.46,0 a10.23,10.23 0 1,0 -20.46,0"
+        android:fillColor="#FFFFFF" />
+
+    <!-- punched centres, matching the darkest end of the ground gradient -->
+    <path
+        android:pathData="M40.8,43.44 m-4.09,0 a4.09,4.09 0 1,0 8.18,0 a4.09,4.09 0 1,0 -8.18,0"
+        android:fillColor="#FF0F1114" />
+    <path
+        android:pathData="M67.2,43.44 m-4.09,0 a4.09,4.09 0 1,0 8.18,0 a4.09,4.09 0 1,0 -8.18,0"
+        android:fillColor="#FF0F1114" />
+</vector>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light-mode launch ground. -->
+    <color name="launch_bg">#F4F6F8</color>
+</resources>

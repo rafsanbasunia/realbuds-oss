@@ -1,0 +1,128 @@
+name: Release
+
+# Tagging v* publishes a release. The tag is the source of truth for the
+# version: it is written into versionName so an installed build can be traced
+# back to the commit it came from.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build and publish (e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve version from the tag
+        id: version
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "name=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      # versionCode must increase monotonically for Android to accept an
+      # upgrade, and commit count is monotonic without needing to be tracked
+      # in the repository.
+      - name: Stamp the version into the build
+        run: |
+          CODE=$(git rev-list --count HEAD)
+          NAME='${{ steps.version.outputs.name }}'
+          sed -i "s/versionCode = .*/versionCode = $CODE/" app/build.gradle.kts
+          sed -i "s/versionName = .*/versionName = \"$NAME\"/" app/build.gradle.kts
+          grep -E 'version(Code|Name)' app/build.gradle.kts
+
+      # Signing is optional. With the four secrets set, every APK is signed
+      # with the project's upload key, so users can upgrade in place. Without
+      # them the build still succeeds and is signed with the debug key, which
+      # is clearly stated in the release notes.
+      - name: Decode the signing keystore
+        id: signing
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "keystore=$RUNNER_TEMP/release.jks" >> "$GITHUB_OUTPUT"
+
+      - name: Assemble release APKs
+        env:
+          REALBUDS_KEYSTORE: ${{ steps.signing.outputs.keystore }}
+          REALBUDS_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          REALBUDS_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          REALBUDS_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon
+
+      # Renamed so a downloaded file still says which ABI and version it is
+      # once it is sitting in a downloads folder.
+      - name: Name the APKs for release
+        id: apks
+        run: |
+          NAME='${{ steps.version.outputs.name }}'
+          mkdir -p release
+          for f in app/build/outputs/apk/release/*.apk; do
+            abi=$(basename "$f" .apk | sed -E 's/^app-(.*)-release$/\1/')
+            cp "$f" "release/RealBuds-$NAME-$abi.apk"
+          done
+          ( cd release && sha256sum *.apk > SHA256SUMS.txt )
+          ls -l release
+          if [ -n "${{ steps.signing.outputs.keystore }}" ]; then
+            echo "signed=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "signed=no" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write the release notes
+        run: |
+          NAME='${{ steps.version.outputs.name }}'
+          {
+            echo "## Which APK do I download?"
+            echo
+            echo "| File | For |"
+            echo "|---|---|"
+            echo "| \`RealBuds-$NAME-arm64-v8a.apk\` | **Almost every phone from 2017 onward.** Start here. |"
+            echo "| \`RealBuds-$NAME-armeabi-v7a.apk\` | Older 32-bit ARM devices. |"
+            echo "| \`RealBuds-$NAME-x86_64.apk\` | Emulators and x86 Chromebooks. |"
+            echo "| \`RealBuds-$NAME-universal.apk\` | Every ABI in one file, if you are unsure. |"
+            echo
+            echo "Verify a download against \`SHA256SUMS.txt\`:"
+            echo
+            echo '```'
+            echo "sha256sum -c SHA256SUMS.txt --ignore-missing"
+            echo '```'
+            echo
+            if [ '${{ steps.apks.outputs.signed }}' = 'no' ]; then
+              echo "> **Note** — this build is signed with a debug key, so Android"
+              echo "> will not upgrade over a differently signed install. Uninstall"
+              echo "> any earlier version first."
+              echo
+            fi
+            echo "Requires Android 8.0 or newer, and Bluetooth permission to find your earbuds."
+          } > NOTES.md
+          cat NOTES.md
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: RealBuds ${{ steps.version.outputs.name }}
+          body_path: NOTES.md
+          files: |
+            release/*.apk
+            release/SHA256SUMS.txt
