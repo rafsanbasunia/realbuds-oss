@@ -38,13 +38,19 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "name=${TAG#v}" >> "$GITHUB_OUTPUT"
 
-      # versionCode must increase monotonically for Android to accept an
-      # upgrade, and commit count is monotonic without needing to be tracked
-      # in the repository.
+      # versionCode must increase monotonically or Android refuses the upgrade.
+      # Derived from the tag rather than the commit count, so it depends only
+      # on the version being released: v1.2.3 -> 10203.
       - name: Stamp the version into the build
         run: |
-          CODE=$(git rev-list --count HEAD)
           NAME='${{ steps.version.outputs.name }}'
+          # 10#... forces base 10: Kotlin rejects a leading-zero literal.
+          CODE=$((10#$(echo "$NAME" | awk -F'[.-]' '{printf "%d%02d%02d", $1, $2, $3}')))
+          if [ -z "$CODE" ] || [ "$CODE" -le 0 ]; then
+            echo "::error::Could not derive a versionCode from tag '$NAME'."
+            exit 1
+          fi
+          echo "versionCode=$CODE versionName=$NAME"
           sed -i "s/versionCode = .*/versionCode = $CODE/" app/build.gradle.kts
           sed -i "s/versionName = .*/versionName = \"$NAME\"/" app/build.gradle.kts
           grep -E 'version(Code|Name)' app/build.gradle.kts
